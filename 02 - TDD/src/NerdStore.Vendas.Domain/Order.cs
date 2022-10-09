@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NerdStore.Core.DomainObjects;
+using NerdStore.Vendas.Domain;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -13,6 +15,8 @@ namespace NerdStore.Vendas.Domain
             this.orderItems = new List<OrderItem>();
         }
         
+        public static int MaxItemsAllowed => 15;
+        public static int MinItemsAllowed = 1;
         public decimal TotalValue { get; private set; }
         
         private readonly List<OrderItem> orderItems;
@@ -25,7 +29,7 @@ namespace NerdStore.Vendas.Domain
         {
             TotalValue = OrderItems.Sum(p => p.UpdatePriceValue());
         }
-
+        
         public void AddItem(OrderItem newOrderItem)
         {
             if(this.orderItems.Any(p => p.ProductId == newOrderItem.ProductId))
@@ -37,6 +41,12 @@ namespace NerdStore.Vendas.Domain
             }
 
             this.orderItems.Add(newOrderItem);
+
+            if (this.orderItems[0].Ammount > MaxItemsAllowed)
+            {
+                throw new DomainException("Order can't have more than 15 items");
+            }
+
             this.UpdateOrderPriceValue();
             
         }   

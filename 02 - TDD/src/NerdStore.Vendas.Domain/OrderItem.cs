@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NerdStore.Core.DomainObjects;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,6 +14,11 @@ namespace NerdStore.Vendas.Domain
 
         public OrderItem(Guid productId, string productName, int ammount, decimal unitValue)
         {
+            if (ammount < Order.MinItemsAllowed)
+            {
+                throw new DomainException("The minimun ammount of an item is 1");
+            }
+            
             ProductId = productId;
             ProductName = productName;
             Ammount = ammount;
@@ -28,5 +34,6 @@ namespace NerdStore.Vendas.Domain
         {
             return Ammount * UnitValue;
         }
+
     }
 }
