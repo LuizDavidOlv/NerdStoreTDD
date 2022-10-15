@@ -8,7 +8,7 @@ namespace NerStore.Vendas.Domain.Tests
     public class OrderTest
     {
         [Fact(DisplayName = "Add new orderItem")]
-        [Trait("Category", "Order Test")]
+        [Trait("Category", "Sales - Order")]
         public void AdicionarItemPedido_NovoPedido_DeveAtualizarValor()
         {
             // Arrange
@@ -25,7 +25,7 @@ namespace NerStore.Vendas.Domain.Tests
         }
 
         [Fact(DisplayName = "Add existing orderItem")]
-        [Trait("Category", "Order Test")]
+        [Trait("Category", "Sales - Order")]
         public void AdicionarItemPedido_ItemJaExistente_DeveIncrementarUnidadesSomarValores()
         {
             //Arrange
@@ -47,7 +47,7 @@ namespace NerStore.Vendas.Domain.Tests
         }
 
         [Fact(DisplayName = "Add orderItem over max allowed")]
-        [Trait("Category","Order Test")]
+        [Trait("Category", "Sales - Order")]
         public void AddOrderItem_ItemOverMaxAllowed_ShouldReturnAnException()
         {
             //Arrange

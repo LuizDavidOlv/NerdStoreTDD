@@ -11,7 +11,7 @@ namespace NerdStore.Vendas.Domain.Tests
     public class OrderItemTests 
     {
         [Fact(DisplayName = "Add orderItem minimun ammount")]
-        [Trait("Category", "OrderItems Test")]
+        [Trait("Category", "Sales - OrderItems")]
         public void AddOrderItem_ItemUnderMinimunRequired_ShouldReturnAnException()
         {
             //Arrange, Act and Assert 

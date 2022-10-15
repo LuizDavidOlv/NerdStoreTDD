@@ -14,11 +14,11 @@ namespace NerdStore.Vendas.Domain
         {
             this.orderItems = new List<OrderItem>();
         }
-        
+
         public static int MaxItemsAllowed => 15;
         public static int MinItemsAllowed = 1;
         public decimal TotalValue { get; private set; }
-        
+
         private readonly List<OrderItem> orderItems;
         public IReadOnlyCollection<OrderItem> OrderItems => this.orderItems;
         public OrderStatus OrderStatus { get; private set; }
@@ -29,27 +29,51 @@ namespace NerdStore.Vendas.Domain
         {
             TotalValue = OrderItems.Sum(p => p.UpdatePriceValue());
         }
-        
+
+        private bool VerifyOrderItemExists(OrderItem orderItem)
+        {
+            return OrderItems.Any(p => p.ProductId == orderItem.ProductId);
+        }
+
+        private OrderItem VerifyMaxAmmount(OrderItem newOrderItem)
+        {
+            var newOrderAmmount = newOrderItem.Ammount;
+            OrderItem existingItem = null;
+            if (VerifyOrderItemExists(newOrderItem))
+            {
+                existingItem = this.OrderItems.FirstOrDefault(p => p.ProductId == newOrderItem.ProductId);
+                newOrderAmmount += existingItem.Ammount;
+            }
+
+            if (newOrderAmmount > MaxItemsAllowed)
+            {
+                throw new DomainException($"The maximun ammount of an item is {MaxItemsAllowed}");
+            }
+
+            if(existingItem != null)
+            {
+                return existingItem;
+            }
+            
+            return newOrderItem;
+        }
+
         public void AddItem(OrderItem newOrderItem)
         {
-            if(this.orderItems.Any(p => p.ProductId == newOrderItem.ProductId))
+            var existingItem = VerifyMaxAmmount(newOrderItem);
+            
+            if (VerifyOrderItemExists(newOrderItem))
             {
-                var oldOrderItem = this.orderItems.FirstOrDefault(p => p.ProductId == newOrderItem.ProductId);
-                oldOrderItem.AddUnit(newOrderItem.Ammount);
-                newOrderItem = oldOrderItem;
-                this.orderItems.Remove(oldOrderItem);
+                //var existingItem = this.OrderItems.FirstOrDefault(p => p.ProductId == newOrderItem.ProductId);
+                existingItem.AddUnit(newOrderItem.Ammount);
+                newOrderItem = existingItem;
+                this.orderItems.Remove(existingItem);
             }
 
             this.orderItems.Add(newOrderItem);
-
-            if (this.orderItems[0].Ammount > MaxItemsAllowed)
-            {
-                throw new DomainException("Order can't have more than 15 items");
-            }
-
             this.UpdateOrderPriceValue();
-            
-        }   
+
+        }
 
         public void ChangeToScketch()
         {
