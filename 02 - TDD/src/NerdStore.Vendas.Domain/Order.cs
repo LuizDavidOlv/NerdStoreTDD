@@ -35,36 +35,37 @@ namespace NerdStore.Vendas.Domain
             return OrderItems.Any(p => p.ProductId == orderItem.ProductId);
         }
 
-        private OrderItem VerifyMaxAmmount(OrderItem newOrderItem)
+        private void VerifyOrderItemDoesNotExists(OrderItem orderItem)
         {
-            var newOrderAmmount = newOrderItem.Ammount;
+            if (!VerifyOrderItemExists(orderItem))
+            {
+                throw new DomainException("The item does not exists in the current order");
+            }
+        }
+
+        private void VerifyMaxAmmount(OrderItem newOrderItem)
+        {
+            var orderAmmount = newOrderItem.Ammount;
             OrderItem existingItem = null;
             if (VerifyOrderItemExists(newOrderItem))
             {
                 existingItem = this.OrderItems.FirstOrDefault(p => p.ProductId == newOrderItem.ProductId);
-                newOrderAmmount += existingItem.Ammount;
+                orderAmmount += existingItem.Ammount;
             }
 
-            if (newOrderAmmount > MaxItemsAllowed)
+            if (orderAmmount > MaxItemsAllowed)
             {
                 throw new DomainException($"The maximun ammount of an item is {MaxItemsAllowed}");
             }
-
-            if(existingItem != null)
-            {
-                return existingItem;
-            }
-            
-            return newOrderItem;
         }
 
         public void AddItem(OrderItem newOrderItem)
         {
-            var existingItem = VerifyMaxAmmount(newOrderItem);
+            VerifyMaxAmmount(newOrderItem);
             
             if (VerifyOrderItemExists(newOrderItem))
             {
-                //var existingItem = this.OrderItems.FirstOrDefault(p => p.ProductId == newOrderItem.ProductId);
+                var existingItem = this.OrderItems.FirstOrDefault(p => p.ProductId == newOrderItem.ProductId);
                 existingItem.AddUnit(newOrderItem.Ammount);
                 newOrderItem = existingItem;
                 this.orderItems.Remove(existingItem);
@@ -73,6 +74,17 @@ namespace NerdStore.Vendas.Domain
             this.orderItems.Add(newOrderItem);
             this.UpdateOrderPriceValue();
 
+        }
+
+        public void UpdateItem(OrderItem orderItem)
+        {
+            VerifyOrderItemDoesNotExists(orderItem);
+            VerifyMaxAmmount(orderItem);
+            
+            var existingItem = this.OrderItems.FirstOrDefault(p => p.ProductId == orderItem.ProductId);
+            this.orderItems.Remove(existingItem);
+            this.orderItems.Add(orderItem);
+            this.UpdateOrderPriceValue();
         }
 
         public void ChangeToScketch()
