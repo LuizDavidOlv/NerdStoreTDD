@@ -87,6 +87,12 @@ namespace NerdStore.Vendas.Domain
             this.UpdateOrderPriceValue();
         }
 
+        public void RemoveItem(OrderItem orderItem)
+        {
+            VerifyOrderItemDoesNotExists(orderItem);
+            this.orderItems.Remove(orderItem);
+            this.UpdateOrderPriceValue();
+        }
         public void ChangeToScketch()
         {
             OrderStatus = OrderStatus.Scketch;

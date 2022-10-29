@@ -124,5 +124,39 @@ namespace NerStore.Vendas.Domain.Tests
             //Act & Assert
             Assert.Throws<DomainException>(() => order.UpdateItem(updatedOrderItem));
         }
+
+        [Fact(DisplayName = "Remove non existing orderItem")]
+        [Trait("Remove", "Sales - Order")]
+        public void RemoveOrderItem_ItemDoesNotExist_ShouldReturnAnException()
+        {
+            //Arrange
+            var orderId = Guid.NewGuid();
+            var order = Order.OrderFactory.NewScketchOrder(orderId);
+            var orderItem = new OrderItem(orderId, "Teste item", 3, 100);
+            
+            //Act & Assert
+            Assert.Throws<DomainException>(() => order.RemoveItem(orderItem));
+        }
+
+        [Fact(DisplayName = "Remove existing orderItem")]
+        [Trait("Remove", "Sales - Order")]
+        public void RemoveOrderItem_ItemExists_ShouldUpdateTotalValue()
+        {
+            //Arrange
+            var orderId = Guid.NewGuid();
+            var order = Order.OrderFactory.NewScketchOrder(orderId);
+            var orderItem = new OrderItem(orderId, "Shazan", 3, 100);
+            order.AddItem(orderItem);
+            var orderItem2 = new OrderItem(Guid.NewGuid(), "Opa", 4, 180);
+            order.AddItem(orderItem2);
+            var totalOrderValue = orderItem2.Ammount * orderItem2.UnitValue;
+            
+            //Act
+            order.RemoveItem(orderItem);
+
+            //Assert
+            Assert.Equal(totalOrderValue, order.TotalValue);
+            
+        }
     }
 }
