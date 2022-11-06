@@ -3,7 +3,7 @@ using NerdStore.Vendas.Domain;
 using System;
 using System.Linq;
 using Xunit;
-namespace NerStore.Vendas.Domain.Tests
+namespace NerdStore.Vendas.Domain.Tests
 {
     public class OrderTest
     {
