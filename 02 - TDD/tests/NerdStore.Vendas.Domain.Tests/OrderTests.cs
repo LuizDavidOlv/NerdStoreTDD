@@ -1,4 +1,5 @@
-﻿using NerdStore.Core.DomainObjects;
+﻿using FluentValidation.Results;
+using NerdStore.Core.DomainObjects;
 using NerdStore.Vendas.Domain;
 using System;
 using System.Linq;
@@ -9,24 +10,24 @@ namespace NerdStore.Vendas.Domain.Tests
     {
         [Fact(DisplayName = "Add new orderItem")]
         [Trait("Add", "Sales - Order")]
-        public void AdicionarItemPedido_NovoPedido_DeveAtualizarValor()
+        public void AddOrderItem_NewOrder_ShouldUpdateValue()
         {
             // Arrange
             var orderId = Guid.NewGuid();
             var order = Order.OrderFactory.NewScketchOrder(orderId);
-            
+
             var orderItem = new OrderItem(orderId, "Test Item", 2, 100);
 
             // Act 
             order.AddItem(orderItem);
-            
+
             //Assert
-            Assert.Equal(200,order.TotalValue);
+            Assert.Equal(200, order.TotalValue);
         }
 
         [Fact(DisplayName = "Add existing orderItem")]
         [Trait("Add", "Sales - Order")]
-        public void AdicionarItemPedido_ItemJaExistente_DeveIncrementarUnidadesSomarValores()
+        public void AddOrderItem_ExistingOrder_ShouldIncrementItensAndUpdateValue()
         {
             //Arrange
             var orderId = Guid.NewGuid();
@@ -43,7 +44,7 @@ namespace NerdStore.Vendas.Domain.Tests
             Assert.Equal(1, order.OrderItems.Count);
             Assert.Equal(300, order.TotalValue);
             Assert.Equal(3, order.OrderItems.FirstOrDefault(p => p.ProductId == orderId).Ammount);
-            
+
         }
 
         [Fact(DisplayName = "Add existing orderItem over max allowed")]
@@ -53,10 +54,10 @@ namespace NerdStore.Vendas.Domain.Tests
             //Arrange
             var orderId = Guid.NewGuid();
             var order = Order.OrderFactory.NewScketchOrder(orderId);
-            var orderItem = new OrderItem(orderId, "Test Item",13, 100);
+            var orderItem = new OrderItem(orderId, "Test Item", 13, 100);
             order.AddItem(orderItem);
             var orderItem2 = new OrderItem(orderId, "Teste Item", 6, 100);
-            
+
             //Act and Assert 
             Assert.Throws<DomainException>(() => order.AddItem(orderItem2));
         }
@@ -133,7 +134,7 @@ namespace NerdStore.Vendas.Domain.Tests
             var orderId = Guid.NewGuid();
             var order = Order.OrderFactory.NewScketchOrder(orderId);
             var orderItem = new OrderItem(orderId, "Teste item", 3, 100);
-            
+
             //Act & Assert
             Assert.Throws<DomainException>(() => order.RemoveItem(orderItem));
         }
@@ -150,13 +151,100 @@ namespace NerdStore.Vendas.Domain.Tests
             var orderItem2 = new OrderItem(Guid.NewGuid(), "Opa", 4, 180);
             order.AddItem(orderItem2);
             var totalOrderValue = orderItem2.Ammount * orderItem2.UnitValue;
-            
+
             //Act
             order.RemoveItem(orderItem);
 
             //Assert
             Assert.Equal(totalOrderValue, order.TotalValue);
+
+        }
+
+        [Fact(DisplayName = "Apply valid voucher")]
+        [Trait("Apply", "Sales - Voucher")]
+        public void ApplyVoucher_ValidVoucher_ShouldReturnValidationResultTrue()
+        {
+            //Arrange 
+            Guid orderId = Guid.NewGuid();
+            Order order = Order.OrderFactory.NewScketchOrder(orderId);
+            OrderItem firstOrderItem = new OrderItem(orderId, "Teste Item", 3, 100);
+            order.AddItem(firstOrderItem);
+            OrderItem secondOrderItem = new OrderItem(Guid.NewGuid(), "Teste Item 2", 4, 150);
+            order.AddItem(secondOrderItem);
+            Voucher newVoucher = new Voucher("PROMO-15-REAIS", null, 15, VoucherDiscountType.Value, 1, DateTime.Now.AddDays(15), true, false);
+
+            //Act
+            ValidationResult result = order.ApplyVoucher(newVoucher);
+
+            //Assert
+            Assert.True(result.IsValid);
+        }
+
+        [Fact(DisplayName = "Apply invalid voucher")]
+        [Trait("Apply", "Sales - Voucher")]
+        public void ApplyVoucher_InvalidVoucher_ShouldReturnValidationResultFalse()
+        {
+            //Arrange 
+            Guid orderId = Guid.NewGuid();
+            Order order = Order.OrderFactory.NewScketchOrder(orderId);
+            OrderItem firstOrderItem = new OrderItem(orderId, "Teste Item", 3, 100);
+            order.AddItem(firstOrderItem);
+            OrderItem secondOrderItem = new OrderItem(Guid.NewGuid(), "Teste Item 2", 4, 150);
+            order.AddItem(secondOrderItem);
+            Voucher newVoucher = new Voucher("", null, 15, VoucherDiscountType.Value, 1, DateTime.Now.AddDays(15), true, false);
+
+            //Act
+            ValidationResult result = order.ApplyVoucher(newVoucher);
+
+            //Assert
+            Assert.False(result.IsValid);
+        }
+
+        [Fact(DisplayName ="Apply voucher value discount")]
+        [Trait("Discount", "Sales - Voucher")]
+        public void ApplyVoucher_VoucherValueTypeDiscount_ShouldUpdateTotalValue()
+        {
+            //Arrange 
+            Guid orderId = Guid.NewGuid();
+            Order order = Order.OrderFactory.NewScketchOrder(orderId);
+            OrderItem firstOrderItem = new OrderItem(orderId, "Teste Item", 3, 100);
+            order.AddItem(firstOrderItem);
+            OrderItem secondOrderItem = new OrderItem(Guid.NewGuid(), "Teste Item 2", 4, 150);
+            order.AddItem(secondOrderItem);
+            Voucher newVoucher = new Voucher("PROMO-15-REAIS", null, 15, VoucherDiscountType.Value, 1, DateTime.Now.AddDays(15), true, false);
+            var totalValue = order.TotalValue;
+            var voucherValue = newVoucher.DiscountValue;
+
+            //Act
+            order.ApplyVoucher(newVoucher);
+
+            //Assert
+            Assert.Equal(totalValue - voucherValue, order.TotalValue);
+        }
+
+        [Fact(DisplayName = "Apply voucher percentual discount")]
+        [Trait("Discount", "Sales - Voucher")]
+        public void ApplyVoucher_VoucherPercentualTypeDiscount_ShouldUpdateTotalValue()
+        {
+            //Arrange 
+            Guid orderId = Guid.NewGuid();
+            Order order = Order.OrderFactory.NewScketchOrder(orderId);
+            OrderItem firstOrderItem = new OrderItem(orderId, "Teste Item", 3, 100);
+            order.AddItem(firstOrderItem);
+            OrderItem secondOrderItem = new OrderItem(Guid.NewGuid(), "Teste Item 2", 4, 150);
+            order.AddItem(secondOrderItem);
             
+            Voucher newVoucher = new Voucher("PROMO-15OFF", 15, null, VoucherDiscountType.Percentual, 1, DateTime.Now.AddDays(15), true, false);
+
+            var discount = (order.TotalValue * newVoucher.DiscountPercentual) / 100;
+            var totalValueWithDiscount = order.TotalValue - discount;
+
+            //Act
+            order.ApplyVoucher(newVoucher);
+            
+            //Assert
+            Assert.Equal(totalValueWithDiscount, order.TotalValue);
         }
     }
 }
+

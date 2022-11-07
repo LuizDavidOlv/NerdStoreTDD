@@ -11,15 +11,15 @@ namespace NerdStore.Vendas.Domain.Tests
 {
     public class VoucherTests
     {
-        [Fact(DisplayName = "Validade voucher")]
+        [Fact(DisplayName = "Validate voucher")]
         [Trait("Voucher", "Sales - Voucher")]
-        public void ValidateVoucher_ValidVoucher_ShouldReturnTrue()
+        public void ValidateVoucher_ValidVoucher_ShouldReturnValidationResultTrue()
         {
             //Arrange 
-            var voucher = new Voucher("PROMO-15-REAIS", null, 15, VoucherDiscountType.Value, 1, DateTime.Now.AddDays(15), true, false);
+            Voucher voucher = new Voucher("PROMO-15-REAIS", null, 15, VoucherDiscountType.Value, 1, DateTime.Now.AddDays(15), true, false);
 
             //Act
-            var result = voucher.ValidateVoucher();
+            ValidationResult result = voucher.ValidateVoucher();
 
             //Assert
             Assert.True(result.IsValid);
@@ -30,16 +30,16 @@ namespace NerdStore.Vendas.Domain.Tests
         public void ValidateVoucher_InvalidVoucher_ShouldReturnErrorList()
         {
             //Arrange
-            var voucher = new Voucher("", null, 0, VoucherDiscountType.Value, 0, DateTime.Now.AddDays(-1), false, true);
-
+            Voucher voucher = new Voucher("", null, 0, VoucherDiscountType.Value, 0, DateTime.Now.AddDays(-1), false, true);
+            
             //Act
-            var result = voucher.ValidateVoucher();
+            ValidationResult result = voucher.ValidateVoucher();
             
             //Assert
             Assert.False(result.IsValid);
             Assert.Equal(6, result.Errors.Count);
             Assert.Contains(VoucherValidation.ActiveErrorMsg, result.Errors.Select(c => c.ErrorMessage));
-            Assert.Contains(VoucherValidation.InvalidVoucherCodeErrorMsg, result.Errors.Select(c => c.ErrorMessage));
+            Assert.Contains(VoucherValidation.VoucherNotFoundCodeErrorMsg, result.Errors.Select(c => c.ErrorMessage));
             Assert.Contains(VoucherValidation.ExpirationDateErrorMsg, result.Errors.Select(c => c.ErrorMessage));
             Assert.Contains(VoucherValidation.AmmountErrorMsg, result.Errors.Select(c => c.ErrorMessage));
             Assert.Contains(VoucherValidation.UsedErrorMsg, result.Errors.Select(c => c.ErrorMessage));
@@ -50,13 +50,13 @@ namespace NerdStore.Vendas.Domain.Tests
         
         [Fact(DisplayName = "Voucher percentual is valid")]
         [Trait("Voucher", "Sales - Voucher")]
-        public void ValidateVoucher_ValidPercentual_ShouldReturnTrue()
+        public void ValidateVoucher_ValidPercentual_ShouldReturnValidationResultTrue()
         {
             //Arrange
-            var voucher = new Voucher("PROMO-15-REAIS", 15, 0, VoucherDiscountType.Percentual, 1, DateTime.Now.AddDays(15), true, false);
+            Voucher voucher = new Voucher("PROMO-15-REAIS", 15, 0, VoucherDiscountType.Percentual, 1, DateTime.Now.AddDays(15), true, false);
 
             //Act
-            var result = voucher.ValidateVoucher();
+            ValidationResult result = voucher.ValidateVoucher();
 
             //Assert
             Assert.True(result.IsValid);
@@ -65,12 +65,12 @@ namespace NerdStore.Vendas.Domain.Tests
 
         [Fact(DisplayName = "Voucher percentual is invalid")]
         [Trait("Voucher", "Sales - Voucher")]
-        public void ValidateVoucher_InvalidPercentual_ShouldReturnFalse()
+        public void ValidateVoucher_InvalidPercentual_ShouldReturnValidationResultFalse()
         {
             //Arrange
-            var voucher = new Voucher("", null, null, VoucherDiscountType.Percentual, 0,DateTime.Now.AddDays(-1), false, true);
+            Voucher voucher = new Voucher("", null, null, VoucherDiscountType.Percentual, 0,DateTime.Now.AddDays(-1), false, true);
             //Act
-            var result = voucher.ValidateVoucher();
+            ValidationResult result = voucher.ValidateVoucher();
 
             //Assert
             Assert.False(result.IsValid);

@@ -1,4 +1,5 @@
-﻿using NerdStore.Core.DomainObjects;
+﻿using FluentValidation.Results;
+using NerdStore.Core.DomainObjects;
 using NerdStore.Vendas.Domain;
 using System;
 using System.Collections.Generic;
@@ -10,22 +11,66 @@ namespace NerdStore.Vendas.Domain
 {
     public class Order
     {
+        public static int MaxItemsAllowed => 15;
+        public static int MinItemsAllowed = 1;
+        
         protected Order()
         {
             this.orderItems = new List<OrderItem>();
         }
 
-        public static int MaxItemsAllowed => 15;
-        public static int MinItemsAllowed = 1;
+        public Guid ClientId { get; private set; }
+        public decimal Discount { get; set; }
         public decimal TotalValue { get; private set; }
-
+        public bool UsedVoucher { get; set; }
+        public Voucher Voucher { get; private set; }
         private readonly List<OrderItem> orderItems;
         public IReadOnlyCollection<OrderItem> OrderItems => this.orderItems;
         public OrderStatus OrderStatus { get; private set; }
-        public Guid ClientId { get; private set; }
+       
 
 
-        public void UpdateOrderPriceValue()
+        public ValidationResult ApplyVoucher(Voucher voucher)
+        {
+            ValidationResult result = voucher.ValidateVoucher();
+            if (!result.IsValid) return result;
+
+            Voucher = voucher;
+            UsedVoucher = true;
+
+            UpdateTotalValueDiscount();
+
+            return result;
+        }
+
+        private void UpdateTotalValueDiscount()
+        {
+            if (!UsedVoucher) return;
+
+            decimal discount = 0;
+            var value = TotalValue;
+
+            if (Voucher.VoucherDiscountType == VoucherDiscountType.Value)
+            {
+                if (Voucher.DiscountValue.HasValue)
+                {
+                    discount = Voucher.DiscountValue.Value;
+                    value -= discount;
+                }
+            }
+            else
+            {
+                if (Voucher.DiscountPercentual.HasValue)
+                {
+                    discount = (TotalValue * Voucher.DiscountPercentual.Value) / 100;
+                    value -= discount;
+                }
+            }
+
+            TotalValue = value < 0 ? 0 : value;
+            Discount = discount;
+        }
+        private void UpdateOrderPriceValue()
         {
             TotalValue = OrderItems.Sum(p => p.UpdatePriceValue());
         }

@@ -39,20 +39,20 @@ namespace NerdStore.Vendas.Domain
     
     public class VoucherValidation : AbstractValidator<Voucher>
     {
-        public static string InvalidVoucherCodeErrorMsg => "Voucher sem código válido.";
-        public static string ExpirationDateErrorMsg => "Este voucher está expirado.";
-        public static string ActiveErrorMsg => "Este voucher não é mais válido.";
-        public static string UsedErrorMsg => "Este voucher já foi utilizado.";
-        public static string AmmountErrorMsg => "Este voucher não está mais disponível";
-        public static string DiscountValueErrorMsg => "O valor do desconto precisa ser superior a 0";
-        public static string PercentualDescontoErrorMsg => "O valor da porcentagem de desconto precisa ser superior a 0";
-        public static string DiscountTypeErrorMsg => "O tipo de desconto não é válido";
+        public static string VoucherNotFoundCodeErrorMsg => "Voucher not found.";
+        public static string ExpirationDateErrorMsg => "Expired voucher.";
+        public static string ActiveErrorMsg => "This voucher is no longer valid.";
+        public static string UsedErrorMsg => "This voucher has already been used.";
+        public static string AmmountErrorMsg => "This voucher is not available anymore";
+        public static string DiscountValueErrorMsg => "The discount value has to be greaater than 0.";
+        public static string PercentualDiscountErrorMsg => "The discount percetange has to be greater than 0.";
+        public static string DiscountTypeErrorMsg => "The discount type is invalid";
         
         public VoucherValidation()
         {
             RuleFor(c => c.VoucherCode)
                 .NotEmpty()
-                .WithMessage(InvalidVoucherCodeErrorMsg);
+                .WithMessage(VoucherNotFoundCodeErrorMsg);
             
             RuleFor(c => c.ExpirationDate)
                 .Must(DateIsValid)
@@ -83,9 +83,9 @@ namespace NerdStore.Vendas.Domain
             {
                 RuleFor(f => f.DiscountPercentual)
                     .NotNull()
-                    .WithMessage(PercentualDescontoErrorMsg)
+                    .WithMessage(PercentualDiscountErrorMsg)
                     .GreaterThan(0)
-                    .WithMessage(PercentualDescontoErrorMsg);
+                    .WithMessage(PercentualDiscountErrorMsg);
 
             });
 
