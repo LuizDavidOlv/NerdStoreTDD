@@ -73,6 +73,7 @@ namespace NerdStore.Vendas.Domain
         private void UpdateOrderPriceValue()
         {
             TotalValue = OrderItems.Sum(p => p.UpdatePriceValue());
+            UpdateTotalValueDiscount();
         }
 
         private bool VerifyOrderItemExists(OrderItem orderItem)

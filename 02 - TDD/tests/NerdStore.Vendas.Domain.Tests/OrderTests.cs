@@ -200,7 +200,7 @@ namespace NerdStore.Vendas.Domain.Tests
             Assert.False(result.IsValid);
         }
 
-        [Fact(DisplayName ="Apply voucher value discount")]
+        [Fact(DisplayName = "Apply voucher value discount")]
         [Trait("Discount", "Sales - Voucher")]
         public void ApplyVoucher_VoucherValueTypeDiscount_ShouldUpdateTotalValue()
         {
@@ -233,7 +233,7 @@ namespace NerdStore.Vendas.Domain.Tests
             order.AddItem(firstOrderItem);
             OrderItem secondOrderItem = new OrderItem(Guid.NewGuid(), "Teste Item 2", 4, 150);
             order.AddItem(secondOrderItem);
-            
+
             Voucher newVoucher = new Voucher("PROMO-15OFF", 15, null, VoucherDiscountType.Percentual, 1, DateTime.Now.AddDays(15), true, false);
 
             var discount = (order.TotalValue * newVoucher.DiscountPercentual) / 100;
@@ -241,10 +241,50 @@ namespace NerdStore.Vendas.Domain.Tests
 
             //Act
             order.ApplyVoucher(newVoucher);
-            
+
             //Assert
             Assert.Equal(totalValueWithDiscount, order.TotalValue);
         }
+
+        [Fact(DisplayName = "Apply voucher exceds total value")]
+        [Trait("Discount", "Sales - Voucher")]
+        public void ApplyVoucher_DiscountExcedsTotalOrderValue_OrderShouldHaveValueZero()
+        {
+            //Arrange
+            Guid orderId = Guid.NewGuid();
+            Order order =  Order.OrderFactory.NewScketchOrder(orderId);
+            OrderItem firstOrderItem = new OrderItem(orderId, "Teste item", 3, 100);
+            order.AddItem(firstOrderItem);
+            Voucher newVoucher = new Voucher("PROMO-600OFF", null, 600, VoucherDiscountType.Value, 1, DateTime.Now.AddDays(15), true, false);
+
+            //Act
+            order.ApplyVoucher(newVoucher);
+
+            //Assert
+            Assert.Equal(0, order.TotalValue);
+        }
+
+        [Fact(DisplayName = "Update total value when applying voucher")]
+        [Trait("Discount", "Sales - Voucher")]
+        public void ApplyVoucher_ModifyOrdemItem_ShouldUpdateTotalValue()
+        {
+            //Arrange
+            Guid orderId = Guid.NewGuid();
+            Order order = Order.OrderFactory.NewScketchOrder(orderId);
+            OrderItem firstOrderItem = new OrderItem(orderId, "Teste item", 2, 100);
+            order.AddItem(firstOrderItem);
+            Voucher newVoucher = new Voucher("PROMO-50OFF", null, 50, VoucherDiscountType.Value, 1, DateTime.Now.AddDays(15), true, false);
+            order.ApplyVoucher(newVoucher);
+            OrderItem secondOrderItem = new OrderItem(Guid.NewGuid(), "testando", 4, 25);
+            
+            //Act
+            order.AddItem(secondOrderItem);
+
+            //Assert
+            var totalValueWithDiscount = order.OrderItems.Sum(i => i.Ammount * i.UnitValue) - newVoucher.DiscountValue;
+            Assert.Equal(totalValueWithDiscount, order.TotalValue);
+        }
+        
     }
 }
 
