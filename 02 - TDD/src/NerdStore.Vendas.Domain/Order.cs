@@ -9,7 +9,7 @@ using System.Text;
 
 namespace NerdStore.Vendas.Domain
 {
-    public class Order : Entity
+    public class Order : Entity, IAggregateRoot
     {
         public static int MaxItemsAllowed => 15;
         public static int MinItemsAllowed = 1;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NerdStore.Core.Data;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NerdStore.Vendas.Domain
 {
-    public interface IOrderRepository
+    public interface IOrderRepository : IRepository<Order>
     {
         void Add(Order order);
     }
