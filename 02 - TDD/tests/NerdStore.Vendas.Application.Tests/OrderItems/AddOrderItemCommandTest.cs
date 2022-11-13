@@ -6,7 +6,7 @@ namespace NerdStore.Vendas.Application.Tests.OrderItems
     public class AddOrderItemCommandTest
     {
         [Fact(DisplayName = "Add valid item command")]
-        [Trait("Add Command", "Vendas - OrderItem Commands")]
+        [Trait("Command", "Vendas - OrderItem Commands")]
         public void AddOrderItemCommand_ValidCommand_ValidationShouldReturnTrue()
         {
             //Arrange
@@ -20,7 +20,7 @@ namespace NerdStore.Vendas.Application.Tests.OrderItems
         }
 
         [Fact(DisplayName = "Add invalid item command")]
-        [Trait("Add Command", "Vendas - OrderItem Commands")]
+        [Trait("Command", "Vendas - OrderItem Commands")]
         public void AddOrderItemComman_InvalidCommand_ValidationShouldReturnFalse()
         {
             //Arrange
