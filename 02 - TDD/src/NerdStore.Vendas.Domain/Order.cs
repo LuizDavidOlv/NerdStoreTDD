@@ -76,7 +76,7 @@ namespace NerdStore.Vendas.Domain
             UpdateTotalValueDiscount();
         }
 
-        private bool VerifyOrderItemExists(OrderItem orderItem)
+        public bool VerifyOrderItemExists(OrderItem orderItem)
         {
             return OrderItems.Any(p => p.ProductId == orderItem.ProductId);
         }
