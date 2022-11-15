@@ -70,7 +70,7 @@
             foreach (var produto in Model.OrderBy(p=>p.CategoriaId))
             {
             <div class="col-md-3 col-sm-6">
-                <span class="thumbnail">
+
                     <a asp-controller="Vitrine" asp-action="ProdutoDetalhe" asp-route-id="@produto.Id"><img width="200" height="200" src="~/Images/@produto.Imagem" /></a>
                     <h4>@produto.Nome</h4>
                     <p>Apenas @produto.QuantidadeEstoque em estoque!</p>
@@ -81,7 +81,6 @@
                             <p class="price">@produto.Valor.ToString("C")</p>
                         </div>
                     </div>
-                </span>
             </div>
             }
         }
