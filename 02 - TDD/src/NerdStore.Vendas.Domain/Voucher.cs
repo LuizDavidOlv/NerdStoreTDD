@@ -1,101 +1,99 @@
-﻿using FluentValidation;
-using FluentValidation.Results;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using FluentValidation;
+using FluentValidation.Results;
+using NerdStore.Core.DomainObjects;
 
 namespace NerdStore.Vendas.Domain
 {
-    public class Voucher
+    public class Voucher : Entity
     {
-        public string VoucherCode { get; private set; }
-        public decimal? DiscountPercentual { get; private set; }
-        public decimal? DiscountValue { get; private set; }
-        public VoucherDiscountType VoucherDiscountType { get; private set; }
-        public int Ammount { get; private set; }
-        public DateTime ExpirationDate { get; private set; }
-        public bool Active { get; private set; }
-        public bool Used { get; private set; }
+        public string Codigo { get; private set; }
+        public decimal? PercentualDesconto { get; private set; }
+        public decimal? ValorDesconto { get; private set; }
+        public int Quantidade { get; private set; }
+        public TipoDescontoVoucher TipoDescontoVoucher { get; private set; }
+        public DateTime DataValidade { get; private set; }
+        public bool Ativo { get; private set; }
+        public bool Utilizado { get; private set; }
 
-        public Voucher(string voucherCode, decimal? discountPercentual, decimal? discountValue, VoucherDiscountType voucherDiscountType, int ammount, DateTime expirationDate, bool active, bool used)
+        // EF Rel.
+        public ICollection<Pedido> Pedidos { get; set; }
+
+        public Voucher(string codigo, decimal? percentualDesconto, decimal? valorDesconto, int quantidade,
+            TipoDescontoVoucher tipoDescontoVoucher, DateTime dataValidade, bool ativo, bool utilizado)
         {
-            VoucherCode = voucherCode;
-            DiscountPercentual = discountPercentual;
-            DiscountValue = discountValue;
-            VoucherDiscountType = voucherDiscountType;
-            Ammount = ammount;
-            ExpirationDate = expirationDate;
-            Active = active;
-            Used = used;
+            Codigo = codigo;
+            PercentualDesconto = percentualDesconto;
+            ValorDesconto = valorDesconto;
+            Quantidade = quantidade;
+            TipoDescontoVoucher = tipoDescontoVoucher;
+            DataValidade = dataValidade;
+            Ativo = ativo;
+            Utilizado = utilizado;
         }
-        
-        public ValidationResult ValidateVoucher()
+
+        public ValidationResult ValidarSeAplicavel()
         {
-            return new VoucherValidation().Validate(this);
+            return new VoucherAplicavelValidation().Validate(this);
         }
     }
-    
-    public class VoucherValidation : AbstractValidator<Voucher>
+
+    public class VoucherAplicavelValidation : AbstractValidator<Voucher>
     {
-        public static string VoucherNotFoundCodeErrorMsg => "Voucher not found.";
-        public static string ExpirationDateErrorMsg => "Expired voucher.";
-        public static string ActiveErrorMsg => "This voucher is no longer valid.";
-        public static string UsedErrorMsg => "This voucher has already been used.";
-        public static string AmmountErrorMsg => "This voucher is not available anymore";
-        public static string DiscountValueErrorMsg => "The discount value has to be greaater than 0.";
-        public static string PercentualDiscountErrorMsg => "The discount percetange has to be greater than 0.";
-        public static string DiscountTypeErrorMsg => "The discount type is invalid";
-        
-        public VoucherValidation()
+        public static string CodigoErroMsg => "Voucher sem código válido.";
+        public static string DataValidadeErroMsg => "Este voucher está expirado.";
+        public static string AtivoErroMsg => "Este voucher não é mais válido.";
+        public static string UtilizadoErroMsg => "Este voucher já foi utilizado.";
+        public static string QuantidadeErroMsg => "Este voucher não está mais disponível";
+        public static string ValorDescontoErroMsg => "O valor do desconto precisa ser superior a 0";
+        public static string PercentualDescontoErroMsg => "O valor da porcentagem de desconto precisa ser superior a 0";
+
+
+        public VoucherAplicavelValidation()
         {
-            RuleFor(c => c.VoucherCode)
+            RuleFor(c => c.Codigo)
                 .NotEmpty()
-                .WithMessage(VoucherNotFoundCodeErrorMsg);
-            
-            RuleFor(c => c.ExpirationDate)
-                .Must(DateIsValid)
-                .WithMessage(ExpirationDateErrorMsg);
+                .WithMessage(CodigoErroMsg);
 
-            RuleFor(c => c.Active)
+            RuleFor(c => c.DataValidade)
+                .Must(DataVencimentoSuperiorAtual)
+                .WithMessage(DataValidadeErroMsg);
+
+            RuleFor(c => c.Ativo)
                 .Equal(true)
-                .WithMessage(ActiveErrorMsg);
+                .WithMessage(AtivoErroMsg);
 
-            RuleFor(c => c.Used)
+            RuleFor(c => c.Utilizado)
                 .Equal(false)
-                .WithMessage(UsedErrorMsg);
+                .WithMessage(UtilizadoErroMsg);
 
-            RuleFor(c => c.Ammount)
+            RuleFor(c => c.Quantidade)
                 .GreaterThan(0)
-                .WithMessage(AmmountErrorMsg);
+                .WithMessage(QuantidadeErroMsg);
 
-            When(f => f.VoucherDiscountType == VoucherDiscountType.Value, () =>
+            When(f => f.TipoDescontoVoucher == TipoDescontoVoucher.Valor, () =>
             {
-                RuleFor(f => f.DiscountValue)
+                RuleFor(f => f.ValorDesconto)
                     .NotNull()
-                    .WithMessage(DiscountValueErrorMsg)
+                    .WithMessage(ValorDescontoErroMsg)
                     .GreaterThan(0)
-                    .WithMessage(DiscountValueErrorMsg);
+                    .WithMessage(ValorDescontoErroMsg);
             });
 
-            When(f => f.VoucherDiscountType == VoucherDiscountType.Percentual, () =>
+            When(f => f.TipoDescontoVoucher == TipoDescontoVoucher.Porcentagem, () =>
             {
-                RuleFor(f => f.DiscountPercentual)
+                RuleFor(f => f.PercentualDesconto)
                     .NotNull()
-                    .WithMessage(PercentualDiscountErrorMsg)
+                    .WithMessage(PercentualDescontoErroMsg)
                     .GreaterThan(0)
-                    .WithMessage(PercentualDiscountErrorMsg);
-
+                    .WithMessage(PercentualDescontoErroMsg);
             });
-
-
-
-
         }
-        protected static bool DateIsValid(DateTime date)
+
+        protected static bool DataVencimentoSuperiorAtual(DateTime dataValidade)
         {
-            return date > DateTime.Now;
+            return dataValidade >= DateTime.Now;
         }
     }
 }

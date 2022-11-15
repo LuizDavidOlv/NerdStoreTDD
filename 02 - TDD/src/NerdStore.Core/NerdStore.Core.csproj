@@ -11,4 +11,9 @@
 		<PackageReference Include="FluentValidation" Version="11.2.2" />
 		<PackageReference Include="Mediatr" Version="7.0.0" />
 	</ItemGroup>
+
+
+	<ItemGroup>
+	  <Folder Include="Messages\CommonMessages\" />
+	</ItemGroup>
 </Project>

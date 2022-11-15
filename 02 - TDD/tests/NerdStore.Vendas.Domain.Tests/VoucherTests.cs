@@ -1,81 +1,81 @@
-﻿using FluentValidation.Results;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace NerdStore.Vendas.Domain.Tests
 {
     public class VoucherTests
     {
-        [Fact(DisplayName = "Validate voucher")]
-        [Trait("Voucher", "Sales - Voucher")]
-        public void ValidateVoucher_ValidVoucher_ShouldReturnValidationResultTrue()
+        [Fact(DisplayName = "Validar Voucher Tipo Valor Válido")]
+        [Trait("Categoria", "Vendas - Voucher")]
+        public void Voucher_ValidarVoucherTipoValor_DeveEstarValido()
         {
-            //Arrange 
-            Voucher voucher = new Voucher("PROMO-15-REAIS", null, 15, VoucherDiscountType.Value, 1, DateTime.Now.AddDays(15), true, false);
+            // Arrange
+            var voucher = new Voucher("PROMO-15-REAIS", null, 15, 1,
+                TipoDescontoVoucher.Valor, DateTime.Now.AddDays(15), true, false);
 
-            //Act
-            ValidationResult result = voucher.ValidateVoucher();
+            // Act
+            var result = voucher.ValidarSeAplicavel();
 
-            //Assert
+            // Assert
             Assert.True(result.IsValid);
         }
 
-        [Fact(DisplayName = "Invalid Voucher")]
-        [Trait("Voucher", "Sales - Voucher")]
-        public void ValidateVoucher_InvalidVoucher_ShouldReturnErrorList()
+        [Fact(DisplayName = "Validar Voucher Tipo Valor Inválido")]
+        [Trait("Categoria", "Vendas - Voucher")]
+        public void Voucher_ValidarVoucherTipoValor_DeveEstarInvalido()
         {
-            //Arrange
-            Voucher voucher = new Voucher("", null, 0, VoucherDiscountType.Value, 0, DateTime.Now.AddDays(-1), false, true);
-            
-            //Act
-            ValidationResult result = voucher.ValidateVoucher();
-            
-            //Assert
+            // Arrange
+            var voucher = new Voucher("", null, null, 0,
+                TipoDescontoVoucher.Valor, DateTime.Now.AddDays(-1), false, true);
+
+            // Act
+            var result = voucher.ValidarSeAplicavel();
+
+            // Assert
             Assert.False(result.IsValid);
             Assert.Equal(6, result.Errors.Count);
-            Assert.Contains(VoucherValidation.ActiveErrorMsg, result.Errors.Select(c => c.ErrorMessage));
-            Assert.Contains(VoucherValidation.VoucherNotFoundCodeErrorMsg, result.Errors.Select(c => c.ErrorMessage));
-            Assert.Contains(VoucherValidation.ExpirationDateErrorMsg, result.Errors.Select(c => c.ErrorMessage));
-            Assert.Contains(VoucherValidation.AmmountErrorMsg, result.Errors.Select(c => c.ErrorMessage));
-            Assert.Contains(VoucherValidation.UsedErrorMsg, result.Errors.Select(c => c.ErrorMessage));
-            Assert.Contains(VoucherValidation.DiscountValueErrorMsg, result.Errors.Select(c => c.ErrorMessage));
-            
+            Assert.Contains(VoucherAplicavelValidation.AtivoErroMsg, result.Errors.Select(c => c.ErrorMessage));
+            Assert.Contains(VoucherAplicavelValidation.CodigoErroMsg, result.Errors.Select(c => c.ErrorMessage));
+            Assert.Contains(VoucherAplicavelValidation.DataValidadeErroMsg, result.Errors.Select(c => c.ErrorMessage));
+            Assert.Contains(VoucherAplicavelValidation.QuantidadeErroMsg, result.Errors.Select(c => c.ErrorMessage));
+            Assert.Contains(VoucherAplicavelValidation.UtilizadoErroMsg, result.Errors.Select(c => c.ErrorMessage));
+            Assert.Contains(VoucherAplicavelValidation.ValorDescontoErroMsg, result.Errors.Select(c => c.ErrorMessage));
         }
 
-        
-        [Fact(DisplayName = "Voucher percentual is valid")]
-        [Trait("Voucher", "Sales - Voucher")]
-        public void ValidateVoucher_ValidPercentual_ShouldReturnValidationResultTrue()
+        [Fact(DisplayName = "Validar Voucher Porcentagem Válido")]
+        [Trait("Categoria", "Vendas - Voucher")]
+        public void Voucher_ValidarVoucherPorcentagem_DeveEstarValido()
         {
-            //Arrange
-            Voucher voucher = new Voucher("PROMO-15-REAIS", 15, 0, VoucherDiscountType.Percentual, 1, DateTime.Now.AddDays(15), true, false);
+            var voucher = new Voucher("PROMO-15-OFF", 15, null, 1,
+                TipoDescontoVoucher.Porcentagem, DateTime.Now.AddDays(15), true, false);
 
-            //Act
-            ValidationResult result = voucher.ValidateVoucher();
+            // Act
+            var result = voucher.ValidarSeAplicavel();
 
-            //Assert
+            // Assert
             Assert.True(result.IsValid);
         }
 
-
-        [Fact(DisplayName = "Voucher percentual is invalid")]
-        [Trait("Voucher", "Sales - Voucher")]
-        public void ValidateVoucher_InvalidPercentual_ShouldReturnValidationResultFalse()
+        [Fact(DisplayName = "Validar Voucher Porcentagem Inválido")]
+        [Trait("Categoria", "Vendas - Voucher")]
+        public void Voucher_ValidarVoucherPorcentagem_DeveEstarInvalido()
         {
-            //Arrange
-            Voucher voucher = new Voucher("", null, null, VoucherDiscountType.Percentual, 0,DateTime.Now.AddDays(-1), false, true);
-            //Act
-            ValidationResult result = voucher.ValidateVoucher();
+            var voucher = new Voucher("", null, null, 0,
+                TipoDescontoVoucher.Porcentagem, DateTime.Now.AddDays(-1), false, true);
 
-            //Assert
+            // Act
+            var result = voucher.ValidarSeAplicavel();
+
+            // Assert
             Assert.False(result.IsValid);
+            Assert.Equal(6, result.Errors.Count);
+            Assert.Contains(VoucherAplicavelValidation.AtivoErroMsg, result.Errors.Select(c => c.ErrorMessage));
+            Assert.Contains(VoucherAplicavelValidation.CodigoErroMsg, result.Errors.Select(c => c.ErrorMessage));
+            Assert.Contains(VoucherAplicavelValidation.DataValidadeErroMsg, result.Errors.Select(c => c.ErrorMessage));
+            Assert.Contains(VoucherAplicavelValidation.QuantidadeErroMsg, result.Errors.Select(c => c.ErrorMessage));
+            Assert.Contains(VoucherAplicavelValidation.UtilizadoErroMsg, result.Errors.Select(c => c.ErrorMessage));
+            Assert.Contains(VoucherAplicavelValidation.PercentualDescontoErroMsg, result.Errors.Select(c => c.ErrorMessage));
         }
-
-
     }
 }
