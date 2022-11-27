@@ -105,3 +105,7 @@ app.UseEndpoints(endpoints =>
 });
 
 app.Run();
+
+public partial class Program { }
+public partial class ProgramWebTests { }
+public partial class ProgramApiTests { }

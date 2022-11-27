@@ -10,11 +10,12 @@ namespace NerdStore.WebApp.Tests
 {
     public class UsuarioTests
     {
-        private readonly IntegrationTestsFixture<Program> testsFixture;
+        private readonly IntegrationTestsFixture<ProgramWebTests> testsFixture;
 
-        public UsuarioTests(IntegrationTestsFixture<Program> testsFixture)
+        public UsuarioTests(IntegrationTestsFixture<ProgramWebTests> testsFixture)
         {
             this.testsFixture = testsFixture;
+            
         }
     }
 }
