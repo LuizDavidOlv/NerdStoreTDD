@@ -1,21 +1,13 @@
-﻿using AutoMapper.Configuration.Annotations;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
 namespace NerdStore.WebApp.Tests.Config
 {
     [CollectionDefinition(nameof(IntegrationWebTestsFixtureCollection))]
-    public class IntegrationWebTestsFixtureCollection : ICollectionFixture<IntegrationTestsFixture<ProgramWebTests>> { }
+    public class IntegrationWebTestsFixtureCollection : ICollectionFixture<IntegrationTestsFixture<Program>> { }
 
-    [CollectionDefinition(nameof(IntegrationWebTestsFixtureCollection))]
-    public class IntegrationApiTestsFixtureCollection : ICollectionFixture<IntegrationTestsFixture<ProgramApiTests>> { }
+    //[CollectionDefinition(nameof(IntegrationWebTestsFixtureCollection))]
+    //public class IntegrationApiTestsFixtureCollection : ICollectionFixture<IntegrationTestsFixture<ProgramApiTests>> { }
 
     public class IntegrationTestsFixture<TStartup> : IDisposable where TStartup : class
     {
@@ -24,13 +16,15 @@ namespace NerdStore.WebApp.Tests.Config
 
         public IntegrationTestsFixture()
         {
-            var clientOoptions = new WebApplicationFactoryClientOptions
+            var clientOptions = new WebApplicationFactoryClientOptions
             {
-
+                
             };
-            
+
             Factory = new LojaAppFactory<TStartup>();
-            Client = Factory.CreateClient(clientOoptions);
+                
+            Client = Factory.CreateClient(clientOptions);
+            
         }
         public void Dispose()
         {

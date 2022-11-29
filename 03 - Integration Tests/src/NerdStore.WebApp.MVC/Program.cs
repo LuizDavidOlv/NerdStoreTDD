@@ -7,6 +7,7 @@ using NerdStore.Catalogo.Data;
 using NerdStore.Vendas.Data;
 using NerdStore.WebApp.MVC.Setup;
 using Microsoft.OpenApi.Models;
+using System.Runtime.CompilerServices;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -33,6 +34,29 @@ services.AddDbContext<VendasContext>(options =>
 
 services.AddDefaultIdentity<IdentityUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+services.AddRazorPages();
+
+services.Configure<IdentityOptions>(options =>
+{
+    // Password settings.
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 1;
+
+    // Lockout settings.
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+
+    // User settings.
+    options.User.AllowedUserNameCharacters =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+    options.User.RequireUniqueEmail = false;
+});
 
 services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
@@ -94,6 +118,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.MapRazorPages();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -107,5 +133,5 @@ app.UseEndpoints(endpoints =>
 app.Run();
 
 public partial class Program { }
-public partial class ProgramWebTests { }
-public partial class ProgramApiTests { }
+//public partial class ProgramWebTests { }
+//public partial class ProgramApiTests { }
