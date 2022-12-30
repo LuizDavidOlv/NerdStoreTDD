@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
+using NerdStore.WebApp.MVC;
 using Xunit;
 
 namespace NerdStore.WebApp.Tests.Config
 {
     [CollectionDefinition(nameof(IntegrationWebTestsFixtureCollection))]
-    public class IntegrationWebTestsFixtureCollection : ICollectionFixture<IntegrationTestsFixture<Program>> { }
+    public class IntegrationWebTestsFixtureCollection : ICollectionFixture<IntegrationTestsFixture<StartupApiTests>> { }
 
     [CollectionDefinition(nameof(IntegrationWebTestsFixtureCollection))]
-    public class IntegrationApiTestsFixtureCollection : ICollectionFixture<IntegrationTestsFixture<ProgramApiTests>> { }
+    public class IntegrationApiTestsFixtureCollection : ICollectionFixture<IntegrationTestsFixture<StartupWebTests>> { }
 
     public class IntegrationTestsFixture<TStartup> : IDisposable where TStartup : class
     {
