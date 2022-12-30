@@ -6,8 +6,8 @@ namespace NerdStore.WebApp.Tests.Config
     [CollectionDefinition(nameof(IntegrationWebTestsFixtureCollection))]
     public class IntegrationWebTestsFixtureCollection : ICollectionFixture<IntegrationTestsFixture<Program>> { }
 
-    //[CollectionDefinition(nameof(IntegrationWebTestsFixtureCollection))]
-    //public class IntegrationApiTestsFixtureCollection : ICollectionFixture<IntegrationTestsFixture<ProgramApiTests>> { }
+    [CollectionDefinition(nameof(IntegrationWebTestsFixtureCollection))]
+    public class IntegrationApiTestsFixtureCollection : ICollectionFixture<IntegrationTestsFixture<ProgramApiTests>> { }
 
     public class IntegrationTestsFixture<TStartup> : IDisposable where TStartup : class
     {
