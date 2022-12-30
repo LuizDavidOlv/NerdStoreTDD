@@ -1,4 +1,5 @@
-﻿using NerdStore.WebApp.MVC;
+﻿using Microsoft.AspNetCore.Identity;
+using NerdStore.WebApp.MVC;
 using NerdStore.WebApp.Tests.Config;
 using Xunit;
 
@@ -20,6 +21,13 @@ namespace NerdStore.WebApp.Tests
         [Trait("Usuário","Integração Web - Usuário")]
         public async Task Usuario_RealizarCadastro_DeveExecutarComSucesso()
         {
+            var user = new IdentityUser
+            {
+                UserName = "usuarioRegistro.Email",
+                Email = "usuarioRegistro.Email",
+                EmailConfirmed = true
+            };
+            
             //arrange
             var initialResponse = await this.testsFixture.Client.GetAsync("/Identity/Account/Register");
             initialResponse.EnsureSuccessStatusCode();
