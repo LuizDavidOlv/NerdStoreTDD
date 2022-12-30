@@ -1,34 +1,28 @@
-using System.Collections.Generic;
-using AutoMapper;
 using MediatR;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NerdStore.WebApp.MVC.Data;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using NerdStore.Catalogo.Application.AutoMapper;
 using NerdStore.Catalogo.Data;
 using NerdStore.Vendas.Data;
 using NerdStore.WebApp.MVC.Setup;
-using Swashbuckle.AspNetCore.Swagger;
-using System.ComponentModel;
-using Microsoft.OpenApi.Models;
 
 namespace NerdStore.WebApp.MVC
 {
     public class StartupWebTests
     {
-        public StartupWebTests(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
         public IConfiguration Configuration { get; }
+
+        public StartupWebTests(IHostEnvironment hostEnvironment)
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(hostEnvironment.ContentRootPath)
+                .AddJsonFile("appsettings.json", true, true)
+                .AddJsonFile($"appsettings.{hostEnvironment.EnvironmentName}.json", true, true)
+                .AddEnvironmentVariables();
+
+            Configuration = builder.Build();
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -53,35 +47,7 @@ namespace NerdStore.WebApp.MVC
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddHttpContextAccessor();
-
-            services.AddSwaggerGen(c =>
-            {
-                var security = new Dictionary<string, IEnumerable<string>>
-                {
-                    {"Bearer", new string[] { }}
-                };
-
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Description = "Insira o token JWT desta maneira: Bearer {seu token}",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
-                });
-
-
-                c.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Version = "v1",
-                    Title = "desenvolvedor.io API",
-                    Description = "desenvolvedor.io  API",
-                    Contact = new OpenApiContact() { Name = "desenvolvedor.io", Email = "email@desenvolvedor.io" },
-                    License = new OpenApiLicense() { Name = "MIT", Url = new Uri("http://desenvolvedor.io/licensa") }
-                });
-            });
-
+            
             services.AddAutoMapper(typeof(DomainToViewModelMappingProfile), typeof(ViewModelToDomainMappingProfile));
 
             services.AddMediatR(typeof(Program));
@@ -114,31 +80,25 @@ namespace NerdStore.WebApp.MVC
             //});
 
             //services.AddControllersWithViews().AddRazorRuntimeCompilation();
-
- 
-
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
         {
-            if (!env.IsDevelopment())
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
             {
                 app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-            });
 
             app.UseHttpsRedirection();
-            app.UseDeveloperExceptionPage();
-            app.UseDefaultFiles();
             app.UseStaticFiles();
+            app.UseCookiePolicy();
 
             app.UseRouting();
 

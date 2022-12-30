@@ -5,10 +5,10 @@ using Xunit;
 namespace NerdStore.WebApp.Tests.Config
 {
     [CollectionDefinition(nameof(IntegrationWebTestsFixtureCollection))]
-    public class IntegrationWebTestsFixtureCollection : ICollectionFixture<IntegrationTestsFixture<StartupApiTests>> { }
+    public class IntegrationWebTestsFixtureCollection : ICollectionFixture<IntegrationTestsFixture<StartupWebTests>> { }
 
     [CollectionDefinition(nameof(IntegrationWebTestsFixtureCollection))]
-    public class IntegrationApiTestsFixtureCollection : ICollectionFixture<IntegrationTestsFixture<StartupWebTests>> { }
+    public class IntegrationApiTestsFixtureCollection : ICollectionFixture<IntegrationTestsFixture<StartupApiTests>> { }
 
     public class IntegrationTestsFixture<TStartup> : IDisposable where TStartup : class
     {

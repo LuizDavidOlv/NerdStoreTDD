@@ -1,10 +1,5 @@
-﻿using Microsoft.VisualStudio.TestPlatform.TestHost;
+﻿using NerdStore.WebApp.MVC;
 using NerdStore.WebApp.Tests.Config;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace NerdStore.WebApp.Tests
@@ -13,9 +8,9 @@ namespace NerdStore.WebApp.Tests
     [Collection(nameof(IntegrationWebTestsFixtureCollection))]
     public class UsuarioTests
     {
-        private readonly IntegrationTestsFixture<Program> testsFixture;
+        private readonly IntegrationTestsFixture<StartupWebTests> testsFixture;
 
-        public UsuarioTests(IntegrationTestsFixture<Program> testsFixture)
+        public UsuarioTests(IntegrationTestsFixture<StartupWebTests> testsFixture)
         {
             this.testsFixture = testsFixture;
 
