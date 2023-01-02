@@ -21,21 +21,18 @@ namespace NerdStore.WebApp.Tests
         [Trait("Usuário","Integração Web - Usuário")]
         public async Task Usuario_RealizarCadastro_DeveExecutarComSucesso()
         {
-            var user = new IdentityUser
-            {
-                UserName = "usuarioRegistro.Email",
-                Email = "usuarioRegistro.Email",
-                EmailConfirmed = true
-            };
             
             //arrange
             var initialResponse = await this.testsFixture.Client.GetAsync("/Identity/Account/Register");
             initialResponse.EnsureSuccessStatusCode();
 
-            var email = "teste@teste.com";
+            var antiForgeryToken = this.testsFixture.ObterAntiForgeryToken(await initialResponse.Content.ReadAsStringAsync());
+            
+            var email = "teste55@teste.com";
             
             var formData = new Dictionary<string,string>
             {
+                {this.testsFixture.AntiForgeryFieldName, antiForgeryToken},
                 {"Input.Email",email},
                 {"Input.Password","Teste@123"},
                 {"Input.ConfirmPassword","Teste@123"}

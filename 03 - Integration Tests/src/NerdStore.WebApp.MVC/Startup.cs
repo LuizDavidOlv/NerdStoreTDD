@@ -79,7 +79,9 @@ namespace NerdStore.WebApp.MVC
 
             services.AddControllersWithViews();
 
-            //services.AddRazorPages();
+            services.AddRazorPages();
+
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
             //services.Configure<IdentityOptions>(options =>
             //{
@@ -102,11 +104,11 @@ namespace NerdStore.WebApp.MVC
             //    options.User.RequireUniqueEmail = false;
             //});
 
-            //services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
- 
 
-            
+
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
